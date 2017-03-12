@@ -31,7 +31,7 @@ public:
     string generate(int sz);
 
 private:
-    map<string, vector<char>> Map;
+    map<string, vector<char>> word_map;
 };
 
 class Markov_model_for_Words :public brute_model {

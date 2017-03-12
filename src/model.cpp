@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <iostream>
 #include "model.h"
 
@@ -21,6 +22,11 @@ brute_model::brute_model(string s, int k) {
     order = k;
 }
 
+/**
+ * Generate random text based on Markov model using brute force method
+ * @param size  the size of the random text
+ * @return string   it is the final result of generated text
+ */
 string brute_model::generate(int sz) {
     // copy first k characters to back to simulate wrap-around
     string working_data = data + data.substr(0, order);
@@ -51,7 +57,6 @@ string brute_model::generate(int sz) {
         // seed now becomes the new sequence
         seed = seed.substr(1) + c;
     }
-
     return answer;
 }
 
@@ -60,28 +65,37 @@ Markov_model_using_Map::Markov_model_using_Map(string s, int k) {
     order = k;
 }
 
+/**
+ * Generate the map for map based Markov Model
+ */
 void Markov_model_using_Map::mapping() {
-    map<string, vector<char>>::iterator it; //  to loop through the Map
     vector<char> list;
+    char c;
     string seed;
     size_t pos;
 
     string working_data = data + data.substr(0, order);
 
-    for (int i = 0; i < data.size(); i++) {
-        list.clear();
-        seed = working_data.substr(i, order);
+    // rewrite: this works but not obvious to understand
+//    for (int i = 0; i < data.size(); i++) {
+//        list.clear();
+//        seed = working_data.substr(i, order);
+//
+//        if (!word_map.count(seed)) {
+//            pos = working_data.find(seed);
+//            while (pos != string::npos && pos < data.length()) {
+//                char c = working_data[pos + order];
+//                list.push_back(c);
+//                pos = working_data.find(seed, pos + 1);
+//            }
+//            word_map[seed] = list;
+//        }
+//    }
 
-        it = Map.find(seed);
-        if (it == Map.end()) {
-            pos = working_data.find(seed);
-            while (pos != string::npos && pos < data.length()) {
-                char c = working_data[pos + order];
-                list.push_back(c);
-                pos = working_data.find(seed, pos + 1);
-            }
-            Map[seed] = list;
-        }
+    for (int i = 0; i < data.size(); i++) {
+        seed = working_data.substr(i, order);
+        c = working_data[i + order];
+        word_map[seed].push_back(c);
     }
 }
 
@@ -96,7 +110,7 @@ string Markov_model_using_Map::generate(int sz) {
     answer.reserve(sz);
 
     for (int i = 0; i < sz; i++) {
-        list = Map.find(seed)->second;
+        list = word_map[seed];
         char c = list[rand() % list.size()];
         answer.push_back(c);
         seed = seed.substr(1) + c;

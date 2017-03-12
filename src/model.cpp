@@ -3,10 +3,8 @@
 //
 
 #include <string>
-#include <sstream>
 #include <vector>
 #include <map>
-#include <iostream>
 #include "model.h"
 
 using namespace std;
@@ -72,7 +70,6 @@ void Markov_model_using_Map::mapping() {
     vector<char> list;
     char c;
     string seed;
-    size_t pos;
 
     string working_data = data + data.substr(0, order);
 
@@ -122,9 +119,12 @@ string Markov_model_using_Map::generate(int sz) {
 Markov_model_for_Words::Markov_model_for_Words(string s, int k) {
     data = s;
     order = k;
-    whitespace_counter = 0;
+    num_words = 0;
 }
 
+/**
+ * This model is based on k words instead of k char
+ */
 void Markov_model_for_Words::mapping() {
     vector<string> list;
     string seed;
@@ -136,18 +136,17 @@ void Markov_model_for_Words::mapping() {
     for (int i = 0; i < order; i++) {
         pos = data.find(' ', pos + 1);
     }
-    string working_data = data.substr(0, pos + 1) + data + data.substr(0, pos + 1); // include the ending space
-    pos = 0;
+    string working_data = data + data.substr(0, pos + 1); // include the ending space
 
-    // count how many white space (ie. how many words) in the doc
-    for (char &c: data) {
+    // count how many words (i.e. whitespace + 1) in the doc
+    for (char &c: data)
         if (c == ' ')
-            whitespace_counter++;
-    }
+            num_words++;
+    num_words++;
 
     size_t initialpos = 0;
     int seedlength;
-    for (int i = 0; i < whitespace_counter; i++) {
+    for (int i = 0; i < num_words; i++) {
         initialpos = pos = 0;
         list.clear();
 
@@ -197,7 +196,7 @@ string Markov_model_for_Words::generate(int sz) {
 
     size_t initialpos = 0;
     // pick random k-words substring as initial seed
-    int start = rand() % whitespace_counter;
+    int start = rand() % num_words;
     for (int i = 0; i < start; i++) {
         initialpos = working_data.find(' ', initialpos + 1);
     }
@@ -212,26 +211,11 @@ string Markov_model_for_Words::generate(int sz) {
     string answer = "";
     map<string, vector<string>>::iterator it;
     for (int i = 0; i < sz; i++) {
-        pos = 0;
-
-        // FOR DEBUG
-        it = Map.find(seed);
-        if (it == Map.end()) {
-            cerr << "\"" << seed << "\" not found" << endl;
-            exit(1);
-        }
-
-
         list = Map.find(seed)->second;
         string s = list[rand() % list.size()];
         answer += s;
-        //cout << "s = " << s << endl;
-        //cout << "answer = "<<answer << endl;
         pos = seed.find(' ', 1);
-        //cout << "Pos = " << pos << endl;
-
         seed = seed.substr(pos) + s;
-        //cout << "now seed =" << seed << "\"" << endl;
     }
 
     return answer;

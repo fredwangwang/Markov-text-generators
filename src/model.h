@@ -44,7 +44,7 @@ public:
 private:
     map<string, vector<string>> Map;
 
-    int whitespace_counter; //word counter
+    int num_words; //word counter
 };
 
 #endif //MARKOV_MODEL_MODEL_H
